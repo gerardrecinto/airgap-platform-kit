@@ -1,0 +1,71 @@
+---
+stig_baseline::banner::banner_text: >-
+  Authorized use only. Activity on this system is monitored and recorded.
+  Unauthorized access or use may result in disciplinary action or legal
+  prosecution. Replace this text with the notice your site requires.
+stig_baseline::banner::issue_files:
+  - /etc/issue
+  - /etc/issue.net
+
+stig_baseline::ssh::permit_root_login: 'no'
+stig_baseline::ssh::permit_empty_passwords: false
+stig_baseline::ssh::client_alive_interval: 600
+stig_baseline::ssh::client_alive_count_max: 1
+stig_baseline::ssh::x11_forwarding: false
+stig_baseline::ssh::ignore_rhosts: true
+stig_baseline::ssh::use_pam: true
+stig_baseline::ssh::banner_path: /etc/issue
+stig_baseline::ssh::config_dir: /etc/ssh/sshd_config.d
+stig_baseline::ssh::service_name: sshd
+
+stig_baseline::audit::rules_file: /etc/audit/rules.d/50-stig-baseline.rules
+stig_baseline::audit::service_name: auditd
+stig_baseline::audit::watches:
+  /etc/passwd: identity
+  /etc/shadow: identity
+  /etc/group: identity
+  /etc/sudoers: actions
+  /etc/sudoers.d/: actions
+
+stig_baseline::auth::faillock_deny: 3
+stig_baseline::auth::faillock_fail_interval: 900
+stig_baseline::auth::faillock_unlock_time: 0
+stig_baseline::auth::faillock_conf: /etc/security/faillock.conf
+stig_baseline::auth::pwquality_conf: /etc/security/pwquality.conf.d/50-stig-baseline.conf
+stig_baseline::auth::pwquality:
+  minlen: 15
+  dcredit: -1
+  ucredit: -1
+  lcredit: -1
+  ocredit: -1
+  difok: 8
+
+stig_baseline::sysctl::conf_file: /etc/sysctl.d/99-stig-baseline.conf
+stig_baseline::sysctl::settings:
+  net.ipv4.ip_forward: 0
+  net.ipv4.conf.all.accept_source_route: 0
+  net.ipv4.conf.default.accept_source_route: 0
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.tcp_syncookies: 1
+  kernel.randomize_va_space: 2
+  kernel.kptr_restrict: 1
+  kernel.dmesg_restrict: 1
+  kernel.yama.ptrace_scope: 1
+
+stig_baseline::permissions::file_modes:
+  /etc/passwd:
+    owner: root
+    group: root
+    mode: '0644'
+  /etc/group:
+    owner: root
+    group: root
+    mode: '0644'
+  /etc/shadow:
+    owner: root
+    group: root
+    mode: '0000'
+  /etc/gshadow:
+    owner: root
+    group: root
+    mode: '0000'

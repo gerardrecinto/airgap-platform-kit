@@ -1,0 +1,5 @@
+<%- | Hash[String,Integer] $options | -%>
+# Managed by Puppet (stig_baseline). Do not edit.
+<% $options.each |$name, $value| { -%>
+<%= $name %> = <%= $value %>
+<% } -%>

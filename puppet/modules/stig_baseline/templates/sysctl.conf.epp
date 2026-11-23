@@ -1,0 +1,5 @@
+<%- | Hash[String, Variant[Integer, String]] $settings | -%>
+# Managed by Puppet (stig_baseline). Do not edit.
+<% $settings.each |$key, $value| { -%>
+<%= $key %> = <%= $value %>
+<% } -%>

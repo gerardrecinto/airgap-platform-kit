@@ -1,0 +1,5 @@
+<%- | Hash[String, String] $watches | -%>
+# Managed by Puppet (stig_baseline). Do not edit.
+<% $watches.each |$path, $key| { -%>
+-w <%= $path %> -p wa -k <%= $key %>
+<% } -%>

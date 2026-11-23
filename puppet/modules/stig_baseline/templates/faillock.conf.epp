@@ -1,0 +1,7 @@
+<%- | Integer $deny, Integer $fail_interval, Integer $unlock_time | -%>
+# Managed by Puppet (stig_baseline). Do not edit.
+audit
+silent
+deny = <%= $deny %>
+fail_interval = <%= $fail_interval %>
+unlock_time = <%= $unlock_time %>

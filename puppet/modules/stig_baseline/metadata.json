@@ -1,0 +1,15 @@
+{
+  "name": "gerardrecinto-stig_baseline",
+  "version": "0.1.0",
+  "author": "gerardrecinto",
+  "summary": "Small RHEL 9 baseline aligned to a subset of DISA STIG controls",
+  "license": "MIT",
+  "source": "https://github.com/gerardrecinto/airgap-platform-kit",
+  "dependencies": [],
+  "operatingsystem_support": [
+    { "operatingsystem": "RedHat", "operatingsystemrelease": ["9"] }
+  ],
+  "requirements": [
+    { "name": "puppet", "version_requirement": ">= 7.0.0 < 9.0.0" }
+  ]
+}

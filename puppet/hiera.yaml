@@ -1,0 +1,10 @@
+---
+# Site level Hiera. Roles are selected with the stig_role fact, for example
+# FACTER_stig_role=rke2_node. Module data supplies the defaults.
+version: 5
+defaults:
+  datadir: hiera
+  data_hash: yaml_data
+hierarchy:
+  - name: "Role"
+    path: "role/%{facts.stig_role}.yaml"

@@ -1,0 +1,22 @@
+<%- | Array[String] $ciphers,
+      Array[String] $macs,
+      String $permit_root_login,
+      Boolean $permit_empty_passwords,
+      Integer $client_alive_interval,
+      Integer $client_alive_count_max,
+      Boolean $x11_forwarding,
+      Boolean $ignore_rhosts,
+      Boolean $use_pam,
+      String $banner_path,
+| -%>
+# Managed by Puppet (stig_baseline). Do not edit.
+Ciphers <%= $ciphers.join(',') %>
+MACs <%= $macs.join(',') %>
+PermitRootLogin <%= $permit_root_login %>
+PermitEmptyPasswords <%= $permit_empty_passwords ? { true => 'yes', default => 'no' } %>
+ClientAliveInterval <%= $client_alive_interval %>
+ClientAliveCountMax <%= $client_alive_count_max %>
+X11Forwarding <%= $x11_forwarding ? { true => 'yes', default => 'no' } %>
+IgnoreRhosts <%= $ignore_rhosts ? { true => 'yes', default => 'no' } %>
+UsePAM <%= $use_pam ? { true => 'yes', default => 'no' } %>
+Banner <%= $banner_path %>

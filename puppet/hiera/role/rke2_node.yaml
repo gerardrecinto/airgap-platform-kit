@@ -1,0 +1,13 @@
+---
+# RKE2 nodes route pod traffic, so IPv4 forwarding must stay on.
+# This is a documented exception to RHEL-09-253075.
+stig_baseline::sysctl::settings:
+  net.ipv4.ip_forward: 1
+  net.ipv4.conf.all.accept_source_route: 0
+  net.ipv4.conf.default.accept_source_route: 0
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.tcp_syncookies: 1
+  kernel.randomize_va_space: 2
+  kernel.kptr_restrict: 1
+  kernel.dmesg_restrict: 1
+  kernel.yama.ptrace_scope: 1
