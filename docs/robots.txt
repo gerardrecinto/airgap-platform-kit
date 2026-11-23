@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gerardrecinto.github.io/airgap-platform-kit/sitemap.xml

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>airgap-platform-kit | Disconnected Kubernetes on RHEL 9</title>
+  <meta name="description" content="Reusable infrastructure code for a disconnected Kubernetes platform on RHEL 9: a STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. Portfolio project, no compliance claim.">
+  <link rel="canonical" href="https://gerardrecinto.github.io/airgap-platform-kit/">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07090E" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F4F5F8" media="(prefers-color-scheme: light)">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="airgap-platform-kit">
+  <meta property="og:url" content="https://gerardrecinto.github.io/airgap-platform-kit/">
+  <meta property="og:title" content="airgap-platform-kit: disconnected Kubernetes on RHEL 9">
+  <meta property="og:description" content="A STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. Portfolio project, no compliance claim.">
+  <meta property="og:image" content="https://gerardrecinto.github.io/airgap-platform-kit/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="airgap-platform-kit: connected side to bundle to transfer to verify, load, Puppet baseline and RKE2 install on the disconnected side.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="airgap-platform-kit: disconnected Kubernetes on RHEL 9">
+  <meta name="twitter:description" content="A STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. Portfolio project, no compliance claim.">
+  <meta name="twitter:image" content="https://gerardrecinto.github.io/airgap-platform-kit/og-image.png">
+  <meta name="twitter:image:alt" content="airgap-platform-kit: connected side to bundle to transfer to verify, load, Puppet baseline and RKE2 install on the disconnected side.">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Motion is opt-in. Without this class every section is simply visible.
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) document.documentElement.classList.add('js');
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "airgap-platform-kit",
+    "description": "Reusable infrastructure code for building a disconnected Kubernetes platform on RHEL 9: a STIG-aligned Puppet baseline, a hardened Helm chart, an image bundle tool for air-gapped registries, and Ansible to stage and install RKE2.",
+    "codeRepositoryUrl": "https://github.com/gerardrecinto/airgap-platform-kit",
+    "url": "https://gerardrecinto.github.io/airgap-platform-kit/",
+    "programmingLanguage": ["Puppet", "Python", "Shell", "YAML"],
+    "license": "https://opensource.org/licenses/MIT",
+    "author": { "@type": "Person", "name": "Gerard Recinto", "url": "https://github.com/gerardrecinto" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="progress" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="wrap bar">
+      <a class="brand" href="#top" aria-label="airgap-platform-kit, top of page">
+        <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" class="b-bg"/><path d="M7 20h5m8 0h5" class="b-ln"/><path d="M12 12v16M20 12v16" class="b-gap"/><circle cx="16" cy="12" r="2.4" class="b-dot"/></svg>
+        <span>airgap-platform-kit</span>
+      </a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#pipeline">Pipeline</a>
+        <a href="#quick-start">Quick start</a>
+        <a href="#features">Features</a>
+        <a href="#controls">Controls</a>
+        <a href="#validation">Validation</a>
+      </nav>
+      <a class="gh" href="https://github.com/gerardrecinto/airgap-platform-kit" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        <span>GitHub</span>
+      </a>
+      <details class="menu">
+        <summary aria-label="Open section menu"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 6h14M3 10h14M3 14h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></summary>
+        <div class="menu-panel">
+          <a href="#pipeline">Pipeline</a>
+          <a href="#quick-start">Quick start</a>
+          <a href="#features">Features</a>
+          <a href="#controls">Controls</a>
+          <a href="#validation">Validation</a>
+          <a href="https://github.com/gerardrecinto/airgap-platform-kit" rel="noopener">GitHub</a>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="hero wrap" id="top" aria-labelledby="h-hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Portfolio project. STIG-aligned subset, no compliance claim.</p>
+        <h1 id="h-hero">Reusable infrastructure code for building a <span class="grad">disconnected Kubernetes platform</span> on RHEL 9.</h1>
+        <p class="lead">A STIG-aligned Puppet baseline, a hardened Helm chart, an image bundle tool for air-gapped registries, and Ansible to stage and install RKE2. Written for platform engineers who have to get images, RKE2 and a baseline onto hosts that cannot reach the internet.</p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/gerardrecinto/airgap-platform-kit" rel="noopener">View the repo</a>
+          <a class="btn" href="#quick-start">Quick start</a>
+        </div>
+        <ul class="chips" aria-label="Built with">
+          <li>Puppet + Hiera</li><li>Helm</li><li>Ansible</li><li>RKE2</li><li>skopeo</li><li>Python 3.12</li>
+        </ul>
+      </div>
+      <figure class="term" aria-label="Terminal output: the bundle tool catching a modified blob">
+        <figcaption><span class="tl" aria-hidden="true"><i></i><i></i><i></i></span>tamper check, from the README</figcaption>
+<pre><code><span class="ln" style="--n:0"><span class="p">$</span> python3 scripts/airgap_bundle.py verify --bundle bundle-bad; echo "exit=$?"</span><span class="ln err" style="--n:1">error: bundle verification failed</span><span class="ln err" style="--n:2">  modified: images/docker.io_library_busybox_1.37/blobs/sha256/30ecbe15...</span><span class="ln" style="--n:3">exit=1</span></code></pre>
+        <p class="term-note">One byte appended to one blob. Verify exits 1 and <code>load</code> pushes nothing.</p>
+      </figure>
+    </section>
+
+    <section class="wrap strip" aria-label="Local test results from the README">
+      <dl class="facts">
+        <div><dt>rspec-puppet examples</dt><dd>53<small> / 0 failures</small></dd></div>
+        <div><dt>pytest tests, bundle tool</dt><dd>24<small> passed</small></dd></div>
+        <div><dt>Shell checks, RKE2 installer</dt><dd>5<small> passed</small></dd></div>
+        <div><dt>Trivy 0.74.0, HIGH and CRITICAL</dt><dd>0<small> findings</small></dd></div>
+      </dl>
+      <p class="fine">Results the author reported running locally, per the README. Not an audit and not a compliance result.</p>
+    </section>
+
+    <section class="panel wrap" id="pipeline" aria-labelledby="h-pipeline">
+      <div class="head">
+        <p class="kicker">The air-gap path</p>
+        <h2 id="h-pipeline">From a connected laptop to a baselined RKE2 node.</h2>
+        <p class="sub">Only a file transfer connects the two sides. The animation walks the seven steps in order, and every step is also numbered and described.</p>
+      </div>
+
+      <div class="flow">
+        <div class="zone conn">
+          <h3><span class="zdot" aria-hidden="true"></span>Connected side</h3>
+          <ol class="nodes">
+            <li class="node" style="--i:1">
+              <span class="num">1</span>
+              <h4>List and create</h4>
+              <p><code>images.txt</code> goes into <code>airgap_bundle.py create</code>. skopeo copies each image to an OCI directory.</p>
+            </li>
+            <li class="node" style="--i:2">
+              <span class="num">2</span>
+              <h4>Bundle with checksums</h4>
+              <p><code>manifest.json</code> holds the sha256 of every file. Output is <code>bundle.tar</code> plus its sha256. RKE2 release files and <code>sha256sum-amd64.txt</code> travel alongside.</p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="gap" aria-label="Transfer across the air gap">
+          <div class="rail" aria-hidden="true"><i class="pkt"></i></div>
+          <div class="node xfer" style="--i:3">
+            <span class="num">3</span>
+            <h4>Transfer</h4>
+            <p>Media or a one-way transfer. Record the tarball sha256 somewhere that does not travel on the same media.</p>
+          </div>
+        </div>
+
+        <div class="zone disc">
+          <h3><span class="zdot" aria-hidden="true"></span>Disconnected side</h3>
+          <ol class="nodes grid4" start="4">
+            <li class="node" style="--i:4">
+              <span class="num">4</span>
+              <h4>Verify</h4>
+              <p><code>airgap_bundle.py verify</code> fails on a missing, modified or unexpected file.</p>
+            </li>
+            <li class="node" style="--i:5">
+              <span class="num">5</span>
+              <h4>Load into the private registry</h4>
+              <p><code>load</code> verifies first, then pushes with skopeo to <code>&lt;registry&gt;/&lt;repo&gt;:&lt;tag&gt;</code>. The README targets Harbor.</p>
+            </li>
+            <li class="node" style="--i:6">
+              <span class="num">6</span>
+              <h4>Puppet baseline</h4>
+              <p>The Ansible <code>airgap</code> role stages files, then runs <code>puppet apply</code> for <code>stig_baseline</code> with the <code>rke2_node</code> Hiera role.</p>
+            </li>
+            <li class="node" style="--i:7">
+              <span class="num">7</span>
+              <h4>RKE2 install</h4>
+              <p><code>rke2-airgap-install.sh</code> checks every file against <code>sha256sum-amd64.txt</code>. <code>registries.yaml</code> points mirrors at the registry.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <p class="after">Then <code>helm upgrade --install platform helm/umbrella -f helm/umbrella/values-airgap.yaml -n apps</code>. <code>global.imageRegistry</code> repoints every image at the private registry.</p>
+      <p class="fine">Order on the node follows the Ansible role: stage, Puppet baseline, then RKE2 install. The bundle checksum is integrity protection against corruption and casual tampering, not a signature.</p>
+    </section>
+
+    <section class="panel wrap" id="quick-start" aria-labelledby="h-quick">
+      <div class="head">
+        <p class="kicker">Quick start</p>
+        <h2 id="h-quick">Run the checks yourself.</h2>
+        <p class="sub">Commands are from the README. Output underneath is what the author recorded on a Mac with Docker, Python 3.12, helm, kubeconform, shellcheck and a source-built skopeo 1.25.2.</p>
+      </div>
+      <p id="copy-status" class="sr" role="status" aria-live="polite"></p>
+
+      <div class="qs">
+        <article class="code">
+          <header><h3>Puppet module</h3><button type="button" class="copy" hidden data-target="c1">Copy</button></header>
+          <pre id="c1" class="cmd"><code>make puppet</code></pre>
+          <pre class="out"><code>parser validate: ok
+puppet-lint: ok
+.....................................................
+Finished in 0.59 seconds
+53 examples, 0 failures</code></pre>
+        </article>
+
+        <article class="code">
+          <header><h3>Helm charts</h3><button type="button" class="copy" hidden data-target="c2">Copy</button></header>
+          <pre id="c2" class="cmd"><code>./helm/validate.sh</code></pre>
+          <pre class="out"><code>==> Linting charts/app
+1 chart(s) linted, 0 chart(s) failed
+==> Linting umbrella
+1 chart(s) linted, 0 chart(s) failed
+Summary: 4 resources found parsing stdin - Valid: 4, Invalid: 0, Errors: 0, Skipped: 0
+rendered images: harbor.example.internal/library/nginxinc/nginx-unprivileged:1.27-alpine
+schema rejects writable rootfs: ok</code></pre>
+        </article>
+
+        <article class="code">
+          <header><h3>Python and shell tests</h3><button type="button" class="copy" hidden data-target="c3">Copy</button></header>
+          <pre id="c3" class="cmd"><code>python3 -m pytest -q scripts
+shellcheck scripts/rke2-airgap-install.sh scripts/tests/test_rke2_install.sh &amp;&amp; scripts/tests/test_rke2_install.sh</code></pre>
+          <pre class="out"><code>24 passed in 1.64s
+ok: dry run on good stage
+ok: agent type and --no-start
+ok: tamper detected
+ok: missing dir rejected
+ok: bad type rejected
+5 checks passed</code></pre>
+        </article>
+
+        <article class="code">
+          <header><h3>Bundle create, verify, dry-run load</h3><button type="button" class="copy" hidden data-target="c4">Copy</button></header>
+          <pre id="c4" class="cmd"><code>python3 scripts/airgap_bundle.py create --images scripts/images.txt --out bundle --tarball bundle.tar --platform linux/amd64
+python3 scripts/airgap_bundle.py verify --bundle bundle.tar
+python3 scripts/airgap_bundle.py load --bundle bundle --registry harbor.example.internal/library --dry-run</code></pre>
+          <pre class="out"><code>wrote bundle/manifest.json: 1 image(s), 5 file(s)
+ok: 1 image(s), 5 file(s) verified
+bundle verified: 1 image(s)
++ skopeo copy --retry-times 3 oci:.../docker.io_library_busybox_1.37:1.37 docker://harbor.example.internal/library/library/busybox:1.37
+dry run: 1 image(s) would be pushed to harbor.example.internal/library</code></pre>
+        </article>
+
+        <article class="code wide">
+          <header><h3>Ansible lint and the Rocky Linux 9 container check</h3><button type="button" class="copy" hidden data-target="c5">Copy</button></header>
+          <pre id="c5" class="cmd"><code>cd ansible &amp;&amp; ansible-lint
+ansible/tests/container-check.sh</code></pre>
+          <pre class="out"><code>Passed: 0 failure(s), 0 warning(s) in 13 files processed of 16 encountered. Profile 'production' was required, and it passed.
+localhost : ok=8  changed=5 unreachable=0 failed=0 skipped=0   (--tags stage, real run in the container)
+localhost : ok=15 changed=5 unreachable=0 failed=0 skipped=2   (--check, Puppet in --noop)</code></pre>
+        </article>
+      </div>
+      <p class="fine">Requirements: Docker (for the Puppet and Rocky checks), Python 3.12, helm 3, kubeconform, shellcheck, skopeo, ansible-core, ansible-lint, trivy. <code>make check</code> runs the local suite.</p>
+    </section>
+
+    <section class="panel wrap" id="features" aria-labelledby="h-features">
+      <div class="head">
+        <p class="kicker">What is in the repo</p>
+        <h2 id="h-features">Five pieces that fit together.</h2>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3>Puppet baseline</h3>
+          <p><code>stig_baseline</code> covers sshd, auditd, faillock and pwquality, sysctl, account file permissions and the login banner. Each area has a <code>manage_*</code> switch. 53 rspec-puppet examples check the rendered config.</p>
+        </article>
+        <article class="card">
+          <h3>Hiera role data</h3>
+          <p>Module data holds the defaults. Site Hiera selects a role with the <code>stig_role</code> fact. The <code>rke2_node</code> role keeps IPv4 forwarding on and is documented as an exception.</p>
+        </article>
+        <article class="card">
+          <h3>Hardened Helm chart</h3>
+          <p>Non-root, seccomp RuntimeDefault, all capabilities dropped, read-only root filesystem, a NetworkPolicy template, and a <code>values.schema.json</code> that rejects a writable rootfs.</p>
+        </article>
+        <article class="card">
+          <h3>Umbrella chart</h3>
+          <p><code>values-airgap.yaml</code> sets <code>global.imageRegistry</code>. <code>helm/validate.sh</code> fails if any rendered image is outside the private registry.</p>
+        </article>
+        <article class="card">
+          <h3>Bundle tool</h3>
+          <p><code>airgap_bundle.py</code> creates, verifies and loads image bundles with skopeo into OCI layouts and a sha256 manifest. <code>load</code> pushes nothing when verification fails, and <code>--dry-run</code> needs no network.</p>
+        </article>
+        <article class="card">
+          <h3>Offline RKE2 install</h3>
+          <p><code>rke2-airgap-install.sh</code> installs from a staged directory, checks every file against the release checksums first, handles server and agent nodes, and has a dry run.</p>
+        </article>
+        <article class="card">
+          <h3>Ansible role</h3>
+          <p>The <code>airgap</code> role stages the bundle, scripts and Puppet code, applies the baseline, installs RKE2 and writes <code>registries.yaml</code>. Secrets such as the join token come from Ansible Vault or your store.</p>
+        </article>
+        <article class="card">
+          <h3>CI</h3>
+          <p>GitHub Actions runs Puppet, Helm, scripts, Ansible and Trivy jobs. A GitLab pipeline is included but was only parsed as YAML, never run on GitLab.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel wrap" id="controls" aria-labelledby="h-controls">
+      <div class="head">
+        <p class="kicker">STIG alignment</p>
+        <h2 id="h-controls">Settings aligned to the RHEL 9 STIG.</h2>
+      </div>
+      <div class="callout warn" role="note">
+        <strong>Aligned to, not compliant.</strong>
+        The IDs below were taken from a public STIG listing for RHEL 9 and were not checked against the current DISA benchmark. Rule numbers change between releases, so verify each ID against the release you are assessed against. No OpenSCAP or DISA SCC scan has been run on a hardened host.
+      </div>
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Implemented controls table, scrollable">
+        <table class="tbl">
+          <caption class="sr">Implemented controls: area, setting, default and the STIG ID it aligns to</caption>
+          <thead><tr><th scope="col">Area</th><th scope="col">Setting</th><th scope="col">Default</th><th scope="col">Aligned to</th></tr></thead>
+          <tbody>
+          <tr><th scope="row">sshd</th><td><code>PermitRootLogin no</code></td><td>no</td><td class="ids"><span class="id">RHEL-09-255045</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>PermitEmptyPasswords no</code></td><td>no</td><td class="ids"><span class="id">RHEL-09-255040</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>Ciphers</code> limited to FIPS-approved list</td><td>4 ciphers</td><td class="ids"><span class="id">RHEL-09-255065</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>MACs</code> limited to FIPS-approved list</td><td>4 MACs</td><td class="ids"><span class="id">RHEL-09-255075</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>ClientAliveInterval 600</code>, <code>ClientAliveCountMax 1</code></td><td>600 / 1</td><td class="ids"><span class="id">RHEL-09-255095</span><span class="id">RHEL-09-255100</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>X11Forwarding no</code></td><td>no</td><td class="ids"><span class="id">RHEL-09-255155</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>IgnoreRhosts yes</code></td><td>yes</td><td class="ids"><span class="id">RHEL-09-255145</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>UsePAM yes</code></td><td>yes</td><td class="ids"><span class="id">RHEL-09-255050</span></td></tr>
+          <tr><th scope="row">sshd</th><td><code>Banner /etc/issue</code></td><td>/etc/issue</td><td class="ids"><span class="id">RHEL-09-255025</span></td></tr>
+          <tr><th scope="row">banner</th><td>Text in <code>/etc/issue</code> and <code>/etc/issue.net</code></td><td>generic notice</td><td class="ids"><span class="id">RHEL-09-211020</span></td></tr>
+          <tr><th scope="row">faillock</th><td><code>deny = 3</code></td><td>3</td><td class="ids"><span class="id">RHEL-09-411075</span></td></tr>
+          <tr><th scope="row">faillock</th><td><code>fail_interval = 900</code></td><td>900 s</td><td class="ids"><span class="id">RHEL-09-411085</span></td></tr>
+          <tr><th scope="row">faillock</th><td><code>unlock_time = 0</code> (admin unlock)</td><td>0</td><td class="ids"><span class="id">RHEL-09-411090</span></td></tr>
+          <tr><th scope="row">pwquality</th><td><code>minlen = 15</code></td><td>15</td><td class="ids"><span class="id">RHEL-09-611090</span></td></tr>
+          <tr><th scope="row">pwquality</th><td><code>dcredit = -1</code></td><td>-1</td><td class="ids"><span class="id">RHEL-09-611070</span></td></tr>
+          <tr><th scope="row">pwquality</th><td><code>ucredit = -1</code></td><td>-1</td><td class="ids"><span class="id">RHEL-09-611110</span></td></tr>
+          <tr><th scope="row">pwquality</th><td><code>lcredit = -1</code></td><td>-1</td><td class="ids"><span class="id">RHEL-09-611065</span></td></tr>
+          <tr><th scope="row">pwquality</th><td><code>ocredit = -1</code></td><td>-1</td><td class="ids"><span class="id">RHEL-09-611100</span></td></tr>
+          <tr><th scope="row">pwquality</th><td><code>difok = 8</code></td><td>8</td><td class="ids"><span class="id">RHEL-09-611115</span></td></tr>
+          <tr><th scope="row">auditd</th><td>Watch <code>/etc/passwd</code></td><td>wa</td><td class="ids"><span class="id">RHEL-09-654240</span></td></tr>
+          <tr><th scope="row">auditd</th><td>Watch <code>/etc/shadow</code></td><td>wa</td><td class="ids"><span class="id">RHEL-09-654245</span></td></tr>
+          <tr><th scope="row">auditd</th><td>Watch <code>/etc/group</code></td><td>wa</td><td class="ids"><span class="id">RHEL-09-654225</span></td></tr>
+          <tr><th scope="row">auditd</th><td>Watch <code>/etc/sudoers</code> and <code>/etc/sudoers.d/</code></td><td>wa</td><td class="ids"><span class="id">RHEL-09-654215</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>net.ipv4.ip_forward = 0</code></td><td>0 (1 for RKE2)</td><td class="ids"><span class="id">RHEL-09-253075</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>net.ipv4.conf.all.accept_source_route = 0</code></td><td>0</td><td class="ids"><span class="id">RHEL-09-253020</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>net.ipv4.conf.default.accept_source_route = 0</code></td><td>0</td><td class="ids"><span class="id">RHEL-09-253045</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>net.ipv4.conf.all.send_redirects = 0</code></td><td>0</td><td class="ids"><span class="id">RHEL-09-253065</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>net.ipv4.tcp_syncookies = 1</code></td><td>1</td><td class="ids"><span class="id">RHEL-09-253010</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>kernel.randomize_va_space = 2</code></td><td>2</td><td class="ids"><span class="id">RHEL-09-213070</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>kernel.kptr_restrict = 1</code></td><td>1</td><td class="ids"><span class="id">RHEL-09-213025</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>kernel.dmesg_restrict = 1</code></td><td>1</td><td class="ids"><span class="id">RHEL-09-213010</span></td></tr>
+          <tr><th scope="row">sysctl</th><td><code>kernel.yama.ptrace_scope = 1</code></td><td>1</td><td class="ids"><span class="id">RHEL-09-213080</span></td></tr>
+          <tr><th scope="row">file perms</th><td><code>/etc/passwd</code> 0644 root:root</td><td>0644</td><td class="ids"><span class="id">RHEL-09-232075</span><span class="id">RHEL-09-232130</span><span class="id">RHEL-09-232135</span></td></tr>
+          <tr><th scope="row">file perms</th><td><code>/etc/group</code> 0644 root:root</td><td>0644</td><td class="ids"><span class="id">RHEL-09-232055</span><span class="id">RHEL-09-232090</span><span class="id">RHEL-09-232095</span></td></tr>
+          <tr><th scope="row">file perms</th><td><code>/etc/shadow</code> 0000 root:root</td><td>0000</td><td class="ids"><span class="id">RHEL-09-232270</span><span class="id">RHEL-09-232150</span><span class="id">RHEL-09-232155</span></td></tr>
+          <tr><th scope="row">file perms</th><td><code>/etc/gshadow</code> 0000 root:root</td><td>0000</td><td class="ids"><span class="id">RHEL-09-232065</span><span class="id">RHEL-09-232110</span><span class="id">RHEL-09-232115</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="two">
+        <div class="callout">
+          <h3>Documented exception</h3>
+          <p>RKE2 nodes forward pod traffic, so <code>net.ipv4.ip_forward</code> must be 1. The <code>rke2_node</code> role data sets it, and the Ansible role applies that role by default. That is a deliberate deviation from RHEL-09-253075 and needs an entry in your own exception register.</p>
+        </div>
+        <div class="callout">
+          <h3>Not covered</h3>
+          <p>FIPS mode, partitioning and mount options, SELinux state, <code>pam_faillock</code> wiring through <code>authselect</code>, password aging, AIDE, USBGuard, the full set of audit syscall rules, and <code>HostbasedAuthentication</code>. Do not read this module as a full STIG implementation.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel wrap" id="validation" aria-labelledby="h-valid">
+      <div class="head">
+        <p class="kicker">Honest status</p>
+        <h2 id="h-valid">Validated and not validated.</h2>
+        <p class="sub">Straight from the README. The status is written out in words, not only color.</p>
+      </div>
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Validation status table, scrollable">
+        <table class="tbl val">
+          <caption class="sr">Validated versus not validated items</caption>
+          <thead><tr><th scope="col">Item</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          <tr><td>Puppet: parser validate, puppet-lint, 53 rspec-puppet examples</td><td><span class="st ok">Run</span></td><td>Passing (Puppet 8.10, Ruby 3.3 container)</td></tr>
+          <tr><td>Puppet <code>--noop</code> on Rocky Linux 9 container via Ansible check mode</td><td><span class="st ok">Run</span></td><td>Reports pending changes, applies nothing</td></tr>
+          <tr><td>Puppet apply for real, including sshd, auditd and sysctl reload</td><td><span class="st no">Not run</span></td><td>Needs a systemd host</td></tr>
+          <tr><td>STIG scan (OpenSCAP or DISA SCC) of a hardened host</td><td><span class="st no">Not run</span></td><td>No compliance claim</td></tr>
+          <tr><td>STIG IDs checked against the current DISA benchmark</td><td><span class="st no">Not done</span></td><td>Taken from a public listing, verify before use</td></tr>
+          <tr><td>Helm lint and kubeconform on chart and umbrella</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
+          <tr><td>Chart installed on kind with restricted Pod Security</td><td><span class="st ok">Run</span></td><td>Pods Running</td></tr>
+          <tr><td>NetworkPolicy enforcement</td><td><span class="st no">Not tested</span></td><td>Depends on the CNI</td></tr>
+          <tr><td>Python bundle tool, 24 pytest tests</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
+          <tr><td>Bundle create, verify, load with real skopeo against a local <code>registry:2</code></td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
+          <tr><td>Load into Harbor</td><td><span class="st no">Not run</span></td><td><code>registry:2</code> is not Harbor, so robot accounts, projects and scan on push are untested</td></tr>
+          <tr><td><code>rke2-airgap-install.sh</code> dry run and checksum tests against fake artifacts</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
+          <tr><td>Real RKE2 install from release artifacts</td><td><span class="st no">Not run</span></td><td>-</td></tr>
+          <tr><td>Ansible lint (production profile) and syntax check</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
+          <tr><td>Ansible <code>--check</code> in a Rocky 9 container</td><td><span class="st ok">Run</span></td><td>Passing. Real RKE2 install tasks not run</td></tr>
+          <tr><td>Anything on a real air-gapped network</td><td><span class="st no">Not run</span></td><td>-</td></tr>
+          <tr><td><code>.github/workflows/ci.yml</code></td><td><span class="st ok">Run</span></td><td>See the Actions tab</td></tr>
+          <tr><td><code>.gitlab-ci.yml</code></td><td><span class="st part">Parsed only</span></td><td>Parsed as YAML only. Never run on GitLab</td></tr>
+          <tr><td>Keycloak OIDC and LDAP</td><td><span class="st doc">Docs only</span></td><td>Untested against a live Keycloak. Values were rendered with <code>helm template</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel wrap" id="scope" aria-labelledby="h-scope">
+      <div class="head">
+        <p class="kicker">Scope and claims</p>
+        <h2 id="h-scope">What this is, and is not.</h2>
+      </div>
+      <p class="prose">The Puppet module implements a small subset of RHEL 9 STIG-aligned settings. It is aligned to those controls, not compliant, certified, or accredited. This project makes no DoD, clearance, or customer claims. Replace the placeholder banner text and review every setting before using it anywhere real.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/gerardrecinto/airgap-platform-kit" rel="noopener">Source on GitHub</a>
+        <a class="btn" href="https://github.com/gerardrecinto/airgap-platform-kit/blob/main/docs/AIRGAP.md" rel="noopener">Air-gap workflow doc</a>
+        <a class="btn" href="https://github.com/gerardrecinto/airgap-platform-kit/blob/main/docs/STIG_MAPPING.md" rel="noopener">STIG mapping doc</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <p>MIT licensed. <a href="https://github.com/gerardrecinto/airgap-platform-kit/blob/main/SECURITY.md" rel="noopener">Security policy</a>. Made by <a href="https://github.com/gerardrecinto" rel="noopener">gerardrecinto</a>.</p>
+    </div>
+  </footer>
+  <script src="site.js" defer></script>
+</body>
+</html>
