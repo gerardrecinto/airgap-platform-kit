@@ -1,0 +1,11 @@
+spec/fixtures/
+vendor/
+.bundle/
+.wrangler/
+__pycache__/
+*.pyc
+.pytest_cache/
+bundle-out/
+*.tar
+.molecule/
+venv/
