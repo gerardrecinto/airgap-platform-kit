@@ -1,0 +1,110 @@
+# GitLab CI pipeline. Not run on a GitLab instance by the author, see README.
+#
+# Air-gapped notes
+#   * Every `image:` below should point at your internal registry. Mirror the
+#     images with scripts/airgap_bundle.py, then set CI_MIRROR to that registry.
+#   * Gems and Python packages come from internal mirrors. Set
+#     PIP_INDEX_URL and BUNDLE_MIRROR__HTTPS://RUBYGEMS__ORG for your runners.
+#   * Trivy needs its vulnerability DB without internet. Download the DB on a
+#     connected host (trivy image --download-db-only), carry trivy-cache/ over,
+#     and the scan jobs run with --skip-db-update --offline-scan.
+#   * kubeconform needs its schemas offline. Point SCHEMA_LOCATION at an
+#     internal copy of the schema repository.
+
+stages:
+  - lint
+  - test
+  - scan
+  - build-bundle
+
+variables:
+  CI_MIRROR: ""
+  SCHEMA_LOCATION: "default"
+  TRIVY_CACHE_DIR: "$CI_PROJECT_DIR/trivy-cache"
+
+default:
+  interruptible: true
+
+shellcheck:
+  stage: lint
+  image: ${CI_MIRROR}koalaman/shellcheck-alpine:v0.10.0
+  script:
+    - shellcheck scripts/rke2-airgap-install.sh scripts/tests/test_rke2_install.sh helm/validate.sh puppet/check.sh
+
+ansible-lint:
+  stage: lint
+  image: ${CI_MIRROR}python:3.12-slim
+  script:
+    - pip install ansible-core ansible-lint
+    - cd ansible
+    - ansible-lint
+    - ansible-playbook -i tests/inventory.ini playbooks/site.yml --syntax-check
+
+puppet-lint:
+  stage: lint
+  image: ${CI_MIRROR}ruby:3.3
+  script:
+    - cd puppet
+    - bundle install
+    - BUNDLE_GEMFILE="$PWD/Gemfile" ./check.sh
+
+helm-lint:
+  stage: lint
+  image: ${CI_MIRROR}alpine/helm:3.16.4
+  script:
+    - helm lint helm/charts/app
+    - helm dependency build helm/umbrella
+    - helm lint helm/umbrella -f helm/umbrella/values-airgap.yaml
+
+pytest:
+  stage: test
+  image: ${CI_MIRROR}python:3.12-slim
+  script:
+    - pip install pytest
+    - python -m pytest -q scripts
+    - scripts/tests/test_rke2_install.sh
+
+helm-kubeconform:
+  stage: test
+  image:
+    name: ${CI_MIRROR}ghcr.io/yannh/kubeconform:v0.6.7-alpine
+    entrypoint: [""]
+  before_script:
+    - apk add --no-cache bash helm
+  script:
+    - ./helm/validate.sh
+
+trivy-fs:
+  stage: scan
+  image:
+    name: ${CI_MIRROR}aquasec/trivy:0.58.1
+    entrypoint: [""]
+  script:
+    - trivy fs --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 --skip-db-update --offline-scan .
+  cache:
+    key: trivy-db
+    paths: [trivy-cache/]
+
+trivy-config:
+  stage: scan
+  image:
+    name: ${CI_MIRROR}aquasec/trivy:0.58.1
+    entrypoint: [""]
+  script:
+    - trivy config --severity HIGH,CRITICAL --exit-code 1 .
+
+build-bundle:
+  stage: build-bundle
+  image: ${CI_MIRROR}quay.io/skopeo/stable:latest
+  before_script:
+    - dnf -y -q install python3
+  script:
+    - python3 scripts/airgap_bundle.py create --images scripts/images.txt --out bundle --tarball airgap-bundle.tar --platform linux/amd64
+    - python3 scripts/airgap_bundle.py verify --bundle airgap-bundle.tar
+  artifacts:
+    paths:
+      - airgap-bundle.tar
+      - airgap-bundle.tar.sha256
+    expire_in: 14 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

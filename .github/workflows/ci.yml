@@ -1,0 +1,86 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  puppet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: puppet
+      - name: parser validate, puppet-lint, rspec-puppet
+        run: ./puppet/check.sh
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/puppet/Gemfile
+
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.4
+      - name: install kubeconform
+        run: |
+          curl -sSfL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
+            | tar -xz -C /usr/local/bin kubeconform
+      - name: helm lint, template, kubeconform
+        run: ./helm/validate.sh
+
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: shellcheck
+        run: shellcheck scripts/rke2-airgap-install.sh scripts/tests/test_rke2_install.sh helm/validate.sh puppet/check.sh ansible/tests/container-check.sh
+      - name: bash tests
+        run: scripts/tests/test_rke2_install.sh
+      - name: pytest
+        run: |
+          pip install pytest
+          python -m pytest -q scripts
+
+  ansible:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: ansible-lint and syntax check
+        working-directory: ansible
+        run: |
+          pip install ansible-core ansible-lint
+          ansible-lint
+          ansible-playbook -i tests/inventory.ini playbooks/site.yml --syntax-check
+
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: trivy fs (vulnerabilities and secrets)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: fs
+          scanners: vuln,secret
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+      - name: trivy config (IaC misconfiguration)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: config
+          severity: HIGH,CRITICAL
+          exit-code: "1"
