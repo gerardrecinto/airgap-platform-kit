@@ -1,0 +1,22 @@
+---
+- name: Check inputs
+  ansible.builtin.assert:
+    that:
+      - airgap_rke2_type in ['server', 'agent']
+      - airgap_rke2_type == 'server' or airgap_rke2_server_url | length > 0
+    fail_msg: "agents need airgap_rke2_server_url, type must be server or agent"
+    quiet: true
+  tags: [always]
+
+- name: Stage bundle and tooling
+  ansible.builtin.import_tasks: stage.yml
+  tags: [stage]
+
+- name: Apply the STIG baseline with Puppet
+  ansible.builtin.import_tasks: puppet.yml
+  when: airgap_apply_baseline | bool
+  tags: [puppet]
+
+- name: Install RKE2
+  ansible.builtin.import_tasks: rke2.yml
+  tags: [rke2]

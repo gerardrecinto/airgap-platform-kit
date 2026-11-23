@@ -1,0 +1,7 @@
+# Managed by Ansible (airgap). Do not edit.
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://{{ airgap_registry | regex_replace('/.*$', '') }}"
+    rewrite:
+      "^(.*)$": "{{ airgap_registry | regex_replace('^[^/]+/', '') }}/$1"

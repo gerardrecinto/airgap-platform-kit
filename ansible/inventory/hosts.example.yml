@@ -1,0 +1,14 @@
+---
+all:
+  vars:
+    airgap_bundle_src: "{{ playbook_dir }}/../../bundle"
+    airgap_rke2_artifacts_src: "{{ playbook_dir }}/../../rke2-artifacts"
+    airgap_registry: harbor.example.internal/library
+  children:
+    rke2_servers:
+      hosts:
+        rke2-server-1.example.internal:
+    rke2_agents:
+      hosts:
+        rke2-agent-1.example.internal:
+        rke2-agent-2.example.internal:

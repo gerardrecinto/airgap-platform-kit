@@ -1,0 +1,43 @@
+---
+- name: Create the RKE2 config directory
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Render RKE2 config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ airgap_rke2_dir }}/config.yaml"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Render registry mirror config
+  ansible.builtin.template:
+    src: registries.yaml.j2
+    dest: "{{ airgap_rke2_dir }}/registries.yaml"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Install RKE2 from staged artifacts
+  ansible.builtin.command:
+    argv:
+      - "{{ airgap_scripts_dir }}/rke2-airgap-install.sh"
+      - --dir
+      - "{{ airgap_rke2_dir }}"
+      - --type
+      - "{{ airgap_rke2_type }}"
+      - --arch
+      - "{{ airgap_rke2_arch }}"
+      - --config
+      - "{{ airgap_rke2_dir }}/config.yaml"
+      - --registries
+      - "{{ airgap_rke2_dir }}/registries.yaml"
+    creates: "/etc/systemd/system/multi-user.target.wants/rke2-{{ airgap_rke2_type }}.service"
+  register: airgap_rke2_install
+  notify: Reload systemd

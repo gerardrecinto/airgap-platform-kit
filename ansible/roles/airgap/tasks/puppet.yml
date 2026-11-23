@@ -1,0 +1,32 @@
+---
+- name: Check that puppet is installed
+  ansible.builtin.stat:
+    path: "{{ airgap_puppet_bin }}"
+  register: airgap_puppet_stat
+
+- name: Check that the Puppet code is staged
+  ansible.builtin.stat:
+    path: "{{ airgap_puppet_dir }}/site.pp"
+  register: airgap_puppet_site
+
+- name: Fail early when puppet is missing
+  ansible.builtin.fail:
+    msg: "{{ airgap_puppet_bin }} not found, install puppet-agent from your internal mirror"
+  when: not airgap_puppet_stat.stat.exists and not ansible_check_mode
+
+- name: Apply stig_baseline
+  ansible.builtin.command:
+    argv: >-
+      {{ [airgap_puppet_bin, 'apply', '--detailed-exitcodes']
+      + (['--noop'] if ansible_check_mode else [])
+      + ['--modulepath', airgap_puppet_dir ~ '/modules',
+         '--hiera_config', airgap_puppet_dir ~ '/hiera.yaml',
+         airgap_puppet_dir ~ '/site.pp'] }}
+  environment:
+    FACTER_stig_role: "{{ airgap_puppet_role }}"
+  register: airgap_puppet_apply
+  # Exit code 2 means resources changed, 0 means nothing to do.
+  changed_when: airgap_puppet_apply.rc == 2
+  failed_when: airgap_puppet_apply.rc not in [0, 2]
+  check_mode: false
+  when: airgap_puppet_stat.stat.exists and airgap_puppet_site.stat.exists

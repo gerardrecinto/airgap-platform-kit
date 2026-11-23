@@ -1,0 +1,33 @@
+---
+# Node role, set per play: server or agent.
+airgap_rke2_type: server
+
+# Controller side sources.
+airgap_bundle_src: "{{ playbook_dir }}/../../bundle"
+airgap_rke2_artifacts_src: "{{ playbook_dir }}/../../rke2-artifacts"
+airgap_scripts_src: "{{ playbook_dir }}/../../scripts"
+airgap_puppet_src: "{{ playbook_dir }}/../../puppet"
+
+# Target side paths.
+airgap_stage_dir: /opt/airgap
+airgap_bundle_dir: "{{ airgap_stage_dir }}/bundle"
+airgap_rke2_dir: "{{ airgap_stage_dir }}/rke2"
+airgap_scripts_dir: "{{ airgap_stage_dir }}/scripts"
+airgap_puppet_dir: "{{ airgap_stage_dir }}/puppet"
+
+# Puppet.
+airgap_puppet_bin: /opt/puppetlabs/bin/puppet
+airgap_puppet_role: rke2_node
+airgap_apply_baseline: true
+
+# RKE2.
+airgap_registry: registry.example.internal/library
+airgap_rke2_arch: amd64
+airgap_rke2_cni: canal
+airgap_rke2_profile: cis
+airgap_rke2_tls_san: []
+airgap_rke2_server_url: ""
+# Supply from Ansible Vault or your secret store. Never commit a real value.
+airgap_rke2_token: ""
+# Extra kube-apiserver arguments, for example the OIDC flags in docs/KEYCLOAK_OIDC.md.
+airgap_rke2_apiserver_args: []

@@ -1,0 +1,16 @@
+---
+- name: Stage bundle, apply STIG baseline and install RKE2 servers
+  hosts: rke2_servers
+  become: true
+  roles:
+    - role: airgap
+      vars:
+        airgap_rke2_type: server
+
+- name: Stage bundle, apply STIG baseline and install RKE2 agents
+  hosts: rke2_agents
+  become: true
+  roles:
+    - role: airgap
+      vars:
+        airgap_rke2_type: agent

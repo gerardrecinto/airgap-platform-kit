@@ -1,0 +1,55 @@
+---
+- name: Create staging directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+  loop:
+    - "{{ airgap_stage_dir }}"
+    - "{{ airgap_scripts_dir }}"
+
+- name: Copy the image bundle
+  ansible.builtin.copy:
+    src: "{{ airgap_bundle_src }}/"
+    dest: "{{ airgap_bundle_dir }}/"
+    owner: root
+    group: root
+    mode: preserve
+
+- name: Copy RKE2 release artifacts
+  ansible.builtin.copy:
+    src: "{{ airgap_rke2_artifacts_src }}/"
+    dest: "{{ airgap_rke2_dir }}/"
+    owner: root
+    group: root
+    mode: preserve
+
+- name: Copy bundle and install scripts
+  ansible.builtin.copy:
+    src: "{{ airgap_scripts_src }}/{{ item }}"
+    dest: "{{ airgap_scripts_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: "0750"
+  loop:
+    - airgap_bundle.py
+    - rke2-airgap-install.sh
+
+- name: Copy the Puppet code
+  ansible.builtin.copy:
+    src: "{{ airgap_puppet_src }}/"
+    dest: "{{ airgap_puppet_dir }}/"
+    owner: root
+    group: root
+    mode: preserve
+  when: airgap_apply_baseline | bool
+
+- name: Verify the bundle manifest on the target
+  ansible.builtin.command:
+    cmd: "python3 {{ airgap_scripts_dir }}/airgap_bundle.py verify --bundle {{ airgap_bundle_dir }}"
+  register: airgap_verify
+  changed_when: false
+  check_mode: false
+  when: not ansible_check_mode

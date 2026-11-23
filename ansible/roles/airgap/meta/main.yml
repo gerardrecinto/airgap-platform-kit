@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: gerardrecinto
+  description: Stage an air-gapped bundle, apply stig_baseline with Puppet, install RKE2
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: EL
+      versions:
+        - "9"
+  galaxy_tags:
+    - rke2
+    - airgap
+    - puppet
+dependencies: []

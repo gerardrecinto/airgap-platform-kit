@@ -1,0 +1,25 @@
+# Managed by Ansible (airgap). Do not edit.
+{% if airgap_rke2_type == 'server' %}
+cni: {{ airgap_rke2_cni }}
+profile: {{ airgap_rke2_profile }}
+write-kubeconfig-mode: "0600"
+{% if airgap_rke2_tls_san | length > 0 %}
+tls-san:
+{% for san in airgap_rke2_tls_san %}
+  - {{ san }}
+{% endfor %}
+{% endif %}
+{% if airgap_rke2_apiserver_args | length > 0 %}
+kube-apiserver-arg:
+{% for arg in airgap_rke2_apiserver_args %}
+  - "{{ arg }}"
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if airgap_rke2_server_url %}
+server: {{ airgap_rke2_server_url }}
+{% endif %}
+{% if airgap_rke2_token %}
+token: {{ airgap_rke2_token }}
+{% endif %}
+system-default-registry: {{ airgap_registry | regex_replace('/.*$', '') }}
