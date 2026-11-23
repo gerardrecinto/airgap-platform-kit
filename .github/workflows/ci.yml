@@ -80,3 +80,21 @@ jobs:
         run: trivy fs --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 .
       - name: trivy config (IaC misconfiguration)
         run: trivy config --severity HIGH,CRITICAL --exit-code 1 .
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: site-tests/package-lock.json
+      - name: install
+        working-directory: site-tests
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: playwright
+        working-directory: site-tests
+        run: npx playwright test
