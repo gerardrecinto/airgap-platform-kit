@@ -25,8 +25,9 @@
   environment:
     FACTER_stig_role: "{{ airgap_puppet_role }}"
   register: airgap_puppet_apply
-  # Exit code 2 means resources changed, 0 means nothing to do.
-  changed_when: airgap_puppet_apply.rc == 2
+  # Exit code 2 means resources changed. A noop run reports pending changes
+  # as "(noop)" notices instead, so check for those in check mode.
+  changed_when: airgap_puppet_apply.rc == 2 or '(noop)' in airgap_puppet_apply.stdout
   failed_when: airgap_puppet_apply.rc not in [0, 2]
   check_mode: false
   when: airgap_puppet_stat.stat.exists and airgap_puppet_site.stat.exists

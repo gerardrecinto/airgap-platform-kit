@@ -17,8 +17,8 @@ printf '{"version":1,"images":[],"files":{}}\n' > "$work/bundle/manifest.json"
 printf 'fake\n' > "$work/rke2/rke2.linux-amd64.tar.gz"
 printf 'fake\n' > "$work/rke2/rke2-images.linux-amd64.tar.zst"
 printf '#!/bin/sh\nexit 0\n' > "$work/rke2/install.sh"
-(cd "$work/rke2" && sha256sum rke2.linux-amd64.tar.gz rke2-images.linux-amd64.tar.zst > sha256sum-amd64.txt 2>/dev/null \
-  || shasum -a 256 rke2.linux-amd64.tar.gz rke2-images.linux-amd64.tar.zst > sha256sum-amd64.txt)
+if command -v sha256sum >/dev/null 2>&1; then hasher=(sha256sum); else hasher=(shasum -a 256); fi
+(cd "$work/rke2" && "${hasher[@]}" rke2.linux-amd64.tar.gz rke2-images.linux-amd64.tar.zst > sha256sum-amd64.txt)
 
 docker run --rm -v "$repo:/repo:ro" -v "$work:/work:ro" rockylinux:9 bash -euxo pipefail -c '
   dnf -y -q install ansible-core python3 procps-ng https://yum.puppet.com/puppet8-release-el-9.noarch.rpm
