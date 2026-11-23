@@ -1,0 +1,82 @@
+# Values for the codecentric keycloakx chart, air-gapped.
+# UNTESTED against a live Keycloak. Rendered with helm template only.
+#
+#   helm repo add codecentric https://codecentric.github.io/helm-charts   # connected side
+#   helm pull codecentric/keycloakx --version 7.0.1                       # carry the .tgz across
+#   helm template keycloak ./keycloakx-7.0.1.tgz -f examples/keycloak-values.yaml
+#
+# Placeholders only. Real passwords come from Kubernetes secrets created by
+# your secret store, not from this file.
+image:
+  repository: harbor.example.internal/library/keycloak/keycloak
+  tag: "26.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: harbor-pull
+
+command:
+  - "/opt/keycloak/bin/kc.sh"
+  - "start"
+  - "--http-port=8080"
+  - "--hostname-strict=false"
+  - "--http-enabled=true"
+
+extraEnv: |
+  - name: KC_PROXY_HEADERS
+    value: xforwarded
+  - name: KC_DB
+    value: postgres
+  - name: KC_DB_URL
+    value: jdbc:postgresql://keycloak-db.example.internal:5432/keycloak
+  - name: KC_DB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-db
+        key: username
+  - name: KC_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-db
+        key: password
+  - name: KEYCLOAK_ADMIN
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-admin
+        key: username
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-admin
+        key: password
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+# LDAP federation is configured in the realm (User federation > ldap), not in
+# chart values. Suggested provider settings for an internal directory:
+#   connection URL   ldaps://ldap.example.internal:636
+#   users DN         ou=people,dc=example,dc=internal
+#   bind DN          cn=keycloak-bind,ou=service,dc=example,dc=internal
+#   bind credential  (from your secret store)
+#   username attr    uid
+#   edit mode        READ_ONLY
+# Trust the directory CA by mounting it into /opt/keycloak/conf/truststores
+# and passing --truststore-paths.
