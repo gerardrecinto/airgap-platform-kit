@@ -1,0 +1,90 @@
+# Set global.imageRegistry (for example in an umbrella chart) to pull every
+# image from one private registry. It takes precedence over image.registry.
+global:
+  imageRegistry: ""
+
+replicaCount: 2
+
+image:
+  registry: docker.io
+  repository: nginxinc/nginx-unprivileged
+  tag: "1.27-alpine"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 80
+
+serviceAccount:
+  create: true
+  name: ""
+
+# Optional Namespace carrying Pod Security Admission labels. Leave off when
+# the namespace is created by Helm or by a platform pipeline, and apply the
+# same labels there instead.
+namespace:
+  create: false
+  name: ""
+  podSecurity:
+    enforce: restricted
+    audit: restricted
+    warn: restricted
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  runAsGroup: 101
+  fsGroup: 101
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Writable scratch space, since the root filesystem is read-only.
+tmpVolumes:
+  - name: tmp
+    mountPath: /tmp
+  - name: cache
+    mountPath: /var/cache/nginx
+  - name: run
+    mountPath: /var/run
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+probes:
+  liveness:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readiness:
+    path: /
+    initialDelaySeconds: 2
+    periodSeconds: 5
+
+networkPolicy:
+  enabled: true
+  # Namespace label selectors allowed to reach the app. Empty means only
+  # pods in the same namespace.
+  allowedNamespaces: []
+  # Allow DNS egress to kube-system. Set egress to [] and this to false to
+  # deny all egress.
+  allowDnsEgress: true
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

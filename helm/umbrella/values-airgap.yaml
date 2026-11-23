@@ -1,0 +1,9 @@
+# Air-gapped override. Every image is pulled from the private Harbor
+# registry that the airgap-bundle tool loaded earlier.
+global:
+  imageRegistry: harbor.example.internal/library
+web:
+  imagePullSecrets:
+    - name: harbor-pull
+  image:
+    pullPolicy: IfNotPresent

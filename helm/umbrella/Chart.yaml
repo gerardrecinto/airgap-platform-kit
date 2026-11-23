@@ -1,0 +1,10 @@
+apiVersion: v2
+name: platform-apps
+description: Umbrella chart that deploys the app chart against a private registry
+type: application
+version: 0.1.0
+dependencies:
+  - name: app
+    version: 0.1.0
+    repository: file://../charts/app
+    alias: web

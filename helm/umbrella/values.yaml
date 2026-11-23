@@ -1,0 +1,4 @@
+global:
+  imageRegistry: ""
+web:
+  replicaCount: 2

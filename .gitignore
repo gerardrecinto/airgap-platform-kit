@@ -9,3 +9,5 @@ bundle-out/
 *.tar
 .molecule/
 venv/
+helm/umbrella/charts/
+helm/umbrella/Chart.lock
