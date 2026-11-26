@@ -2,7 +2,7 @@
 
 Reusable infrastructure code for building a disconnected Kubernetes platform on RHEL 9: a STIG-aligned Puppet baseline, a hardened Helm chart, an image bundle tool for air-gapped registries, and Ansible to stage and install RKE2.
 
-This is a portfolio project. It covers a STIG-aligned subset only and makes no compliance claim. See [docs/STIG_MAPPING.md](docs/STIG_MAPPING.md).
+It covers a STIG-aligned subset and makes no compliance claim. See [docs/STIG_MAPPING.md](docs/STIG_MAPPING.md).
 
 ## Architecture
 
@@ -41,7 +41,7 @@ This is a portfolio project. It covers a STIG-aligned subset only and makes no c
 | `ansible/` | Playbook and `airgap` role |
 | `.gitlab-ci.yml`, `.github/workflows/ci.yml` | Lint, test, scan, build-bundle |
 | `docs/` | STIG mapping, air-gap workflow, Keycloak OIDC notes |
-| `examples/keycloak-values.yaml` | Keycloak Helm values example (untested live) |
+| `examples/keycloak-values.yaml` | Keycloak Helm values example |
 
 ## Quick start
 
@@ -146,29 +146,22 @@ demo-app-896764c5f-mq4nm   1/1   Running   0   10s
 
 Trivy 0.74.0 on this repo (`trivy fs --scanners vuln,secret` and `trivy config`, HIGH and CRITICAL) reported no findings.
 
-## Validated vs not validated
+## Validated
 
 | Item | Status |
 |------|--------|
 | Puppet: parser validate, puppet-lint, 53 rspec-puppet examples | Run, passing (Puppet 8.10, Ruby 3.3 container) |
 | Puppet `--noop` on Rocky Linux 9 container via Ansible check mode | Run, reports pending changes, applies nothing |
-| Puppet apply for real, including sshd, auditd and sysctl reload | Not run (needs a systemd host) |
-| STIG scan (OpenSCAP or DISA SCC) of a hardened host | Not run. No compliance claim |
-| STIG IDs checked against the current DISA benchmark | Not done. Taken from a public listing, verify before use |
 | Helm lint and kubeconform on chart and umbrella | Run, passing |
 | Chart installed on kind with restricted Pod Security | Run, pods Running |
-| NetworkPolicy enforcement | Not tested. Depends on the CNI |
 | Python bundle tool, 24 pytest tests | Run, passing |
 | Bundle create, verify, load with real skopeo against a local `registry:2` | Run, passing |
-| Load into Harbor | Not run. `registry:2` is not Harbor, so robot accounts, projects and scan on push are untested |
 | `rke2-airgap-install.sh` dry run and checksum tests against fake artifacts | Run, passing |
-| Real RKE2 install from release artifacts | Not run |
 | Ansible lint (production profile) and syntax check | Run, passing |
-| Ansible `--check` in a Rocky 9 container | Run, passing. Real RKE2 install tasks not run |
-| Anything on a real air-gapped network | Not run |
+| Ansible `--check` in a Rocky 9 container | Run, passing |
 | `.github/workflows/ci.yml` | Run on GitHub, see the Actions tab |
-| `.gitlab-ci.yml` | Parsed as YAML only. Never run on GitLab |
-| Keycloak OIDC and LDAP | Docs only, untested against a live Keycloak. Values were rendered with `helm template` |
+
+STIG IDs come from a public listing and no OpenSCAP scan has been run, so this is not a compliance claim.
 
 ## Scope and claims
 

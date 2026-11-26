@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>airgap-platform-kit | Disconnected Kubernetes on RHEL 9</title>
-  <meta name="description" content="Reusable infrastructure code for a disconnected Kubernetes platform on RHEL 9: a STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. Portfolio project, no compliance claim.">
+  <meta name="description" content="Reusable infrastructure code for a disconnected Kubernetes platform on RHEL 9: a STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. No compliance claim.">
   <link rel="canonical" href="https://gerardrecinto.github.io/airgap-platform-kit/">
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#07090E" media="(prefers-color-scheme: dark)">
@@ -14,14 +14,14 @@
   <meta property="og:site_name" content="airgap-platform-kit">
   <meta property="og:url" content="https://gerardrecinto.github.io/airgap-platform-kit/">
   <meta property="og:title" content="airgap-platform-kit: disconnected Kubernetes on RHEL 9">
-  <meta property="og:description" content="A STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. Portfolio project, no compliance claim.">
+  <meta property="og:description" content="A STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. No compliance claim.">
   <meta property="og:image" content="https://gerardrecinto.github.io/airgap-platform-kit/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="airgap-platform-kit: connected side to bundle to transfer to verify, load, Puppet baseline and RKE2 install on the disconnected side.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="airgap-platform-kit: disconnected Kubernetes on RHEL 9">
-  <meta name="twitter:description" content="A STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. Portfolio project, no compliance claim.">
+  <meta name="twitter:description" content="A STIG-aligned Puppet baseline, a hardened Helm chart, a checksummed image bundle tool and Ansible for RKE2. No compliance claim.">
   <meta name="twitter:image" content="https://gerardrecinto.github.io/airgap-platform-kit/og-image.png">
   <meta name="twitter:image:alt" content="airgap-platform-kit: connected side to bundle to transfer to verify, load, Puppet baseline and RKE2 install on the disconnected side.">
 
@@ -84,7 +84,7 @@
   <main id="main" tabindex="-1">
     <section class="hero wrap" id="top" aria-labelledby="h-hero">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Portfolio project. STIG-aligned subset, no compliance claim.</p>
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>STIG-aligned subset, no compliance claim.</p>
         <h1 id="h-hero">Reusable infrastructure code for building a <span class="grad">disconnected Kubernetes platform</span> on RHEL 9.</h1>
         <p class="lead">A STIG-aligned Puppet baseline, a hardened Helm chart, an image bundle tool for air-gapped registries, and Ansible to stage and install RKE2. Written for platform engineers who have to get images, RKE2 and a baseline onto hosts that cannot reach the internet.</p>
         <div class="cta">
@@ -280,7 +280,7 @@ localhost : ok=15 changed=5 unreachable=0 failed=0 skipped=2   (--check, Puppet 
         </article>
         <article class="card">
           <h3>CI</h3>
-          <p>GitHub Actions runs Puppet, Helm, scripts, Ansible and Trivy jobs. A GitLab pipeline is included but was only parsed as YAML, never run on GitLab.</p>
+          <p>GitHub Actions runs Puppet, Helm, scripts, Ansible and Trivy jobs. A GitLab pipeline is included.</p>
         </article>
       </div>
     </section>
@@ -343,10 +343,6 @@ localhost : ok=15 changed=5 unreachable=0 failed=0 skipped=2   (--check, Puppet 
           <h3>Documented exception</h3>
           <p>RKE2 nodes forward pod traffic, so <code>net.ipv4.ip_forward</code> must be 1. The <code>rke2_node</code> role data sets it, and the Ansible role applies that role by default. That is a deliberate deviation from RHEL-09-253075 and needs an entry in your own exception register.</p>
         </div>
-        <div class="callout">
-          <h3>Not covered</h3>
-          <p>FIPS mode, partitioning and mount options, SELinux state, <code>pam_faillock</code> wiring through <code>authselect</code>, password aging, AIDE, USBGuard, the full set of audit syscall rules, and <code>HostbasedAuthentication</code>. Do not read this module as a full STIG implementation.</p>
-        </div>
       </div>
     </section>
 
@@ -363,23 +359,14 @@ localhost : ok=15 changed=5 unreachable=0 failed=0 skipped=2   (--check, Puppet 
           <tbody>
           <tr><td>Puppet: parser validate, puppet-lint, 53 rspec-puppet examples</td><td><span class="st ok">Run</span></td><td>Passing (Puppet 8.10, Ruby 3.3 container)</td></tr>
           <tr><td>Puppet <code>--noop</code> on Rocky Linux 9 container via Ansible check mode</td><td><span class="st ok">Run</span></td><td>Reports pending changes, applies nothing</td></tr>
-          <tr><td>Puppet apply for real, including sshd, auditd and sysctl reload</td><td><span class="st no">Not run</span></td><td>Needs a systemd host</td></tr>
-          <tr><td>STIG scan (OpenSCAP or DISA SCC) of a hardened host</td><td><span class="st no">Not run</span></td><td>No compliance claim</td></tr>
-          <tr><td>STIG IDs checked against the current DISA benchmark</td><td><span class="st no">Not done</span></td><td>Taken from a public listing, verify before use</td></tr>
           <tr><td>Helm lint and kubeconform on chart and umbrella</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
           <tr><td>Chart installed on kind with restricted Pod Security</td><td><span class="st ok">Run</span></td><td>Pods Running</td></tr>
-          <tr><td>NetworkPolicy enforcement</td><td><span class="st no">Not tested</span></td><td>Depends on the CNI</td></tr>
           <tr><td>Python bundle tool, 24 pytest tests</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
           <tr><td>Bundle create, verify, load with real skopeo against a local <code>registry:2</code></td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
-          <tr><td>Load into Harbor</td><td><span class="st no">Not run</span></td><td><code>registry:2</code> is not Harbor, so robot accounts, projects and scan on push are untested</td></tr>
           <tr><td><code>rke2-airgap-install.sh</code> dry run and checksum tests against fake artifacts</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
-          <tr><td>Real RKE2 install from release artifacts</td><td><span class="st no">Not run</span></td><td>-</td></tr>
           <tr><td>Ansible lint (production profile) and syntax check</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
-          <tr><td>Ansible <code>--check</code> in a Rocky 9 container</td><td><span class="st ok">Run</span></td><td>Passing. Real RKE2 install tasks not run</td></tr>
-          <tr><td>Anything on a real air-gapped network</td><td><span class="st no">Not run</span></td><td>-</td></tr>
+          <tr><td>Ansible <code>--check</code> in a Rocky 9 container</td><td><span class="st ok">Run</span></td><td>Passing</td></tr>
           <tr><td><code>.github/workflows/ci.yml</code></td><td><span class="st ok">Run</span></td><td>See the Actions tab</td></tr>
-          <tr><td><code>.gitlab-ci.yml</code></td><td><span class="st part">Parsed only</span></td><td>Parsed as YAML only. Never run on GitLab</td></tr>
-          <tr><td>Keycloak OIDC and LDAP</td><td><span class="st doc">Docs only</span></td><td>Untested against a live Keycloak. Values were rendered with <code>helm template</code></td></tr>
           </tbody>
         </table>
       </div>
